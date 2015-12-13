@@ -1,0 +1,26 @@
+limit_req_zone $binary_remote_addr zone=test:10m rate=5r/s;
+
+server {
+    listen 7002 default_server;
+
+    root /www/main/;
+    index index.html index.htm;
+
+    server_name localhost;
+
+    location /secret {
+        index index.html index.htm;
+        auth_basic "restricted";
+        auth_basic_user_file /www/main/secret/.htaccess;
+    }
+
+    location /limit {
+        limit_req zone=test;
+        index index.html index.htm;
+    }
+
+    location /limit/check {
+        add_header Content-Type "text/html";
+        return 200 "nginx";
+    }
+}
